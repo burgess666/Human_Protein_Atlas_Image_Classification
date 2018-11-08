@@ -170,9 +170,10 @@ model.compile(
 
 model.summary()
 
-epochs = 100; batch_size = 16
+epochs = 100;
+batch_size = 16
 checkpointer = ModelCheckpoint(
-    '/Users/Kellan/Desktop/Human_Protein_Atlas_Image_Classification/InceptionResNetV2.model',
+    '/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2.model',
     verbose=2,
     save_best_only=True)
 
