@@ -55,7 +55,7 @@ model.summary()
 epochs = 10
 batch_size = 32
 checkpointer = ModelCheckpoint(
-    '/Users/Kellan/Desktop/human_protein/InceptionResNetV2_tf.model',
+    '/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2_tf.model',
     verbose=2,
     save_best_only=True)
 

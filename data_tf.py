@@ -10,8 +10,8 @@ from imgaug import augmenters as iaa
 class DataGenerator:
 
     def get_data(self):
-        # data_folder = '/data/d14122793/human_protein_atlas_image_classification'
-        data_folder = '/Users/Kellan/Desktop/human_protein'
+        data_folder = '/data/d14122793/human_protein_atlas_image_classification'
+        #data_folder = '/Users/Kellan/Desktop/human_protein'
         path_to_train = os.path.join(data_folder, 'train')
         data = pd.read_csv(os.path.join(data_folder, 'train.csv'))
 
