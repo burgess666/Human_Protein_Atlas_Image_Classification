@@ -14,9 +14,6 @@ import tqdm
 from tensorflow.keras.models import load_model
 
 
-
-
-
 # create train datagen
 
 data_gen = DataGenerator()
@@ -60,7 +57,7 @@ model.compile(
 
 model.summary()
 
-epochs = 10
+epochs = 1000
 batch_size = 32
 checkpointer = ModelCheckpoint(
     '/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2_tf.model',
