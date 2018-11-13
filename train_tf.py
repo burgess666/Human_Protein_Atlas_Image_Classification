@@ -70,8 +70,8 @@ early_stopper = EarlyStopping(patience=10)
 np.random.seed(2018)
 indexes = np.arange(train_dataset_info.shape[0])
 np.random.shuffle(indexes)
-train_indexes = indexes[:100]
-valid_indexes = indexes[101:201]
+train_indexes = indexes[:27500]
+valid_indexes = indexes[27500:]
 
 # create train and valid datagens
 train_generator = data_gen.create_train(
