@@ -1,12 +1,13 @@
 import numpy as np
-from keras.models import Sequential, load_model
+from keras.models import Sequential
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.applications import InceptionResNetV2
 from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from keras import metrics
 from keras.optimizers import Adam
 from data_tf import DataGenerator
-import os, time
+import os
+import time
 
 
 # create train datagen
@@ -42,7 +43,7 @@ def create_model(input_shape, n_out):
 
 
 model = create_model(
-    input_shape=(299,299,3),
+    input_shape=(299, 299, 3),
     n_out=28)
 
 model.compile(
