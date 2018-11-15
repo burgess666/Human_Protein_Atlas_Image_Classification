@@ -3,7 +3,7 @@ import os
 import numpy as np
 import tqdm
 from data_tf import DataGenerator
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 
 
 
