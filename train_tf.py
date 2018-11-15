@@ -54,10 +54,10 @@ model.compile(
 model.summary()
 
 epochs = 1000
-batch_size = 32
+batch_size = 16
 
 checkpointer = ModelCheckpoint(
-    filepath=os.path.join('//data/d14122793/human_protein_atlas_image_classification', 'Training-' + \
+    filepath=os.path.join('//data/d14122793/human_protein_atlas_image_classification', 'checkpoints', 'Training-' + \
                           '.{epoch:03d}-{val_loss:.3f}.hdf5'),
     verbose=1,
     save_best_only=True)
@@ -70,11 +70,11 @@ csv_logger = CSVLogger(os.path.join('.', 'logs', 'training-' + str(timestamp) + 
 
 
 # split and suffle data
-np.random.seed(2000)
+np.random.seed(2018)
 indexes = np.arange(train_dataset_info.shape[0])
 np.random.shuffle(indexes)
 train_indexes = indexes[:27500]
-valid_indexes = indexes[27500:]
+valid_indexes = indexes[27501:]
 
 # create train and valid datagens
 train_generator = data_gen.create_train(
@@ -85,7 +85,7 @@ validation_generator = data_gen.create_train(
 # train model
 history = model.fit_generator(
     train_generator,
-    steps_per_epoch=900,
+    steps_per_epoch=100,
     validation_data=next(validation_generator),
     epochs=epochs,
     verbose=1,

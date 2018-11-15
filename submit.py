@@ -9,7 +9,7 @@ from keras.models import load_model
 
 data_gen = DataGenerator()
 submit = pd.read_csv('/data/d14122793/human_protein_atlas_image_classification/sample_submission.csv')
-model = load_model('/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2.model')
+model = load_model('/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2.hd5f')
 
 predicted = []
 
