@@ -1,13 +1,12 @@
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Activation, Dropout, Flatten, Dense
-from tensorflow.keras.applications import InceptionResNetV2
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow.keras import metrics
-from tensorflow.keras.optimizers import Adam
+from keras.models import Sequential, load_model
+from keras.layers import Activation, Dropout, Flatten, Dense
+from keras.applications import InceptionResNetV2
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
+from keras import metrics
+from keras.optimizers import Adam
 from data_tf import DataGenerator
-import os
+import os, time
 
 
 # create train datagen
@@ -55,15 +54,22 @@ model.summary()
 
 epochs = 1000
 batch_size = 32
+
 checkpointer = ModelCheckpoint(
-    '/data/d14122793/human_protein_atlas_image_classification/InceptionResNetV2_tf.model',
-    verbose=2,
+    filepath=os.path.join('//data/d14122793/human_protein_atlas_image_classification', 'Training-' + \
+                          '.{epoch:03d}-{val_loss:.3f}.hdf5'),
+    verbose=1,
     save_best_only=True)
 
-early_stopper = EarlyStopping(patience=10)
+early_stopper = EarlyStopping(patience=50)
+
+# Helper: Save results.
+timestamp = time.time()
+csv_logger = CSVLogger(os.path.join('.', 'logs', 'training-' + str(timestamp) + '.log'))
+
 
 # split and suffle data
-np.random.seed(2018)
+np.random.seed(2000)
 indexes = np.arange(train_dataset_info.shape[0])
 np.random.shuffle(indexes)
 train_indexes = indexes[:27500]
@@ -78,8 +84,8 @@ validation_generator = data_gen.create_train(
 # train model
 history = model.fit_generator(
     train_generator,
-    steps_per_epoch=100,
+    steps_per_epoch=900,
     validation_data=next(validation_generator),
     epochs=epochs,
     verbose=1,
-    callbacks=[checkpointer, early_stopper])
+    callbacks=[checkpointer, early_stopper, csv_logger])
