@@ -1,10 +1,9 @@
 import pandas as pd
 import os
 import numpy as np
-import tqdm
+from tqdm import tqdm
 from data_tf import DataGenerator
 from keras.models import load_model
-
 
 
 data_gen = DataGenerator()
