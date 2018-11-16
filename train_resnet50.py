@@ -27,7 +27,6 @@ def create_model(input_shape, n_out):
     pretrain_model = ResNet50(
         include_top=False,
         weights='imagenet',
-        pooling='max',
         input_shape=input_shape)
 
     model = Sequential()
@@ -43,9 +42,7 @@ def create_model(input_shape, n_out):
     return model
 
 
-model = create_model(
-    input_shape=(299, 299, 3),
-    n_out=28)
+model = create_model(input_shape=(299, 299, 3), n_out=28)
 
 model.compile(
     loss='categorical_crossentropy',
@@ -86,7 +83,7 @@ validation_generator = data_gen.create_train(
 # train model
 history = model.fit_generator(
     train_generator,
-    steps_per_epoch=100,
+    steps_per_epoch=1718,
     validation_data=next(validation_generator),
     epochs=epochs,
     verbose=1,
