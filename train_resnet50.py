@@ -83,7 +83,7 @@ validation_generator = data_gen.create_train(
 # train model
 history = model.fit_generator(
     train_generator,
-    steps_per_epoch=1718,
+    steps_per_epoch=100,
     validation_data=next(validation_generator),
     epochs=epochs,
     verbose=1,
