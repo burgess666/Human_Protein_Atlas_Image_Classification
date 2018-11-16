@@ -9,13 +9,13 @@ from keras.models import load_model
 data_gen = DataGenerator()
 submit = pd.read_csv('/data/d14122793/human_protein_atlas_image_classification/sample_submission.csv')
 checkpints_path = '/data/d14122793/human_protein_atlas_image_classification/checkpoints'
-model = load_model(os.path.join(checkpints_path, 'Training-.032-2.961.hdf5'))
+model = load_model(os.path.join(checkpints_path, 'Resnet-Training-077-3.245.hdf5'))
 
 predicted = []
 
 for name in tqdm(submit['Id']):
     path = os.path.join('/data/d14122793/human_protein_atlas_image_classification/test/', name)
-    image = data_gen.load_image(path, (299,299,3))
+    image = data_gen.load_image(path, (224, 224, 3))
     score_predict = model.predict(image[np.newaxis])[0]
     label_predict = np.arange(28)[score_predict>=0.5]
     str_predict_label = ' '.join(str(l) for l in label_predict)
@@ -23,4 +23,4 @@ for name in tqdm(submit['Id']):
 
 
 submit['Predicted'] = predicted
-submit.to_csv('submission004.csv', index=False)
+submit.to_csv('submission005.csv', index=False)
