@@ -16,7 +16,7 @@ data_gen = DataGenerator()
 
 train_dataset_info = data_gen.get_data()
 
-train_datagen = data_gen.create_train(train_dataset_info, 5, (224, 224, 3))
+train_datagen = data_gen.create_train(train_dataset_info, 5, (299, 299, 3))
 
 images, labels = next(train_datagen)
 
@@ -27,6 +27,7 @@ def create_model(input_shape, n_out):
     pretrain_model = ResNet50(
         include_top=False,
         weights='imagenet',
+        pooling='max',
         input_shape=input_shape)
 
     model = Sequential()
@@ -43,7 +44,7 @@ def create_model(input_shape, n_out):
 
 
 model = create_model(
-    input_shape=(224, 224, 3),
+    input_shape=(299, 299, 3),
     n_out=28)
 
 model.compile(
@@ -78,9 +79,9 @@ valid_indexes = indexes[27500:]
 
 # create train and valid datagens
 train_generator = data_gen.create_train(
-    train_dataset_info[train_indexes], batch_size, (224, 224, 3))
+    train_dataset_info[train_indexes], batch_size, (299, 299, 3))
 validation_generator = data_gen.create_train(
-    train_dataset_info[valid_indexes], 100, (224, 224, 3), augument=False)
+    train_dataset_info[valid_indexes], 100, (299, 299, 3), augument=False)
 
 # train model
 history = model.fit_generator(

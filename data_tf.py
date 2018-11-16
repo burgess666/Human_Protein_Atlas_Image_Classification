@@ -46,8 +46,7 @@ class DataGenerator:
         image_blue_ch = skimage.io.imread(path + '_blue.png')
 
         image_red_ch += (image_yellow_ch / 2).astype(np.uint8)
-        image_green_ch += (image_yellow_ch / 4).astype(np.uint8)
-        image_blue_ch += (image_yellow_ch / 4).astype(np.uint8)
+        image_green_ch += (image_yellow_ch / 2).astype(np.uint8)
 
         image = np.stack((
             image_red_ch,
