@@ -2,20 +2,15 @@
 # Let's try to test the multi_processing.
 
 import os
-from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, Model
 from keras.layers import Activation, Dropout, Flatten, Dense, Input, Conv2D, MaxPooling2D, BatchNormalization, \
     Concatenate, ReLU, LeakyReLU, GlobalAveragePooling2D
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau
-from keras import metrics
 from keras.optimizers import Adam
-from keras import backend as K
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 from tensorflow import set_random_seed
 from kaggle_data import ProteinDataGenerator
-import keras
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 from sklearn.metrics import f1_score as off1
@@ -23,6 +18,7 @@ from sklearn.metrics import f1_score as off1
 
 BATCH_SIZE = 32
 SEED = 666
+set_random_seed(SEED)
 SHAPE = (512, 512, 4)
 DIR = '/data/d14122793/human_protein_atlas_image_classification'
 # 10 % as validation
@@ -30,75 +26,12 @@ VAL_RATIO = 0.1
 # Due to different cost of True Positive vs False Positive
 # This is the probability threshold to predict the class as 'yes'
 THRESHOLD = 0.5
-
-set_random_seed(SEED)
-
-
-def getTrainDataset():
-    path_to_train = DIR + '/train/'
-    data = pd.read_csv(DIR + '/train.csv')
-    paths = []
-    labels = []
-
-    for name, lbl in zip(data['Id'], data['Target'].str.split(' ')):
-        y = np.zeros(28)
-        for key in lbl:
-            y[int(key)] = 1
-        paths.append(os.path.join(path_to_train, name))
-        labels.append(y)
-
-    return np.array(paths), np.array(labels)
+data_generator = ProteinDataGenerator()
 
 
-def getTestDataset():
-    path_to_test = DIR + '/test/'
-    data = pd.read_csv(DIR + '/sample_submission.csv')
-    paths = []
-    labels = []
-
-    for name in data['Id']:
-        y = np.ones(28)
-        paths.append(os.path.join(path_to_test, name))
-        labels.append(y)
-
-    return np.array(paths), np.array(labels)
-
-
-# credits: https://www.kaggle.com/guglielmocamporese/macro-f1-score-keras
-def f1(y_true, y_pred):
-    # y_pred = K.round(y_pred)
-    # y_pred = K.cast(K.greater(K.clip(y_pred, 0, 1), THRESHOLD), K.floatx())
-    tp = K.sum(K.cast(y_true * y_pred, 'float'), axis=0)
-    tn = K.sum(K.cast((1 - y_true) * (1 - y_pred), 'float'), axis=0)
-    fp = K.sum(K.cast((1 - y_true) * y_pred, 'float'), axis=0)
-    fn = K.sum(K.cast(y_true * (1 - y_pred), 'float'), axis=0)
-
-    p = tp / (tp + fp + K.epsilon())
-    r = tp / (tp + fn + K.epsilon())
-
-    f1 = 2 * p * r / (p + r + K.epsilon())
-    f1 = tf.where(tf.is_nan(f1), tf.zeros_like(f1), f1)
-    return K.mean(f1)
-
-
-def f1_loss(y_true, y_pred):
-    # y_pred = K.cast(K.greater(K.clip(y_pred, 0, 1), THRESHOLD), K.floatx())
-    tp = K.sum(K.cast(y_true * y_pred, 'float'), axis=0)
-    tn = K.sum(K.cast((1 - y_true) * (1 - y_pred), 'float'), axis=0)
-    fp = K.sum(K.cast((1 - y_true) * y_pred, 'float'), axis=0)
-    fn = K.sum(K.cast(y_true * (1 - y_pred), 'float'), axis=0)
-
-    p = tp / (tp + fp + K.epsilon())
-    r = tp / (tp + fn + K.epsilon())
-
-    f1 = 2 * p * r / (p + r + K.epsilon())
-    f1 = tf.where(tf.is_nan(f1), tf.zeros_like(f1), f1)
-    return 1 - K.mean(f1)
-
-
-# some basic useless model
+# Creating model
 def create_model(input_shape):
-    dropRate = 0.5
+    drop_rate = 0.5
 
     init = Input(input_shape)
     x = BatchNormalization(axis=-1)(init)
@@ -107,7 +40,7 @@ def create_model(input_shape):
 
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
-    ginp1 = Dropout(dropRate)(x)
+    ginp1 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp1)
     x = Conv2D(64, (3, 3), strides=(2, 2))(x)
@@ -121,7 +54,7 @@ def create_model(input_shape):
 
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
-    ginp2 = Dropout(dropRate)(x)
+    ginp2 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp2)
     x = Conv2D(128, (3, 3))(x)
@@ -132,7 +65,7 @@ def create_model(input_shape):
     x = BatchNormalization(axis=-1)(x)
     x = Conv2D(128, (3, 3))(x)
     x = ReLU()(x)
-    ginp3 = Dropout(dropRate)(x)
+    ginp3 = Dropout(drop_rate)(x)
 
     gap1 = GlobalAveragePooling2D()(ginp1)
     gap2 = GlobalAveragePooling2D()(ginp2)
@@ -142,7 +75,7 @@ def create_model(input_shape):
 
     x = BatchNormalization(axis=-1)(x)
     x = Dense(256, activation='relu')(x)
-    x = Dropout(dropRate)(x)
+    x = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(x)
     x = Dense(256, activation='relu')(x)
@@ -160,11 +93,13 @@ model = create_model(SHAPE)
 model.compile(
     loss='binary_crossentropy',
     optimizer=Adam(1e-04),
-    metrics=['acc', f1])
+    metrics=['acc', data_generator.f1])
 
 model.summary()
 
-paths, labels = getTrainDataset()
+paths, labels = data_generator.getTrainDataset()
+
+
 
 # divide to
 keys = np.arange(paths.shape[0], dtype=np.int)
@@ -188,7 +123,7 @@ checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'), monito
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 
-early_stopper = EarlyStopping(patience=50)
+early_stopper = EarlyStopping(patience=20)
 epochs = 1000
 
 use_multiprocessing = True  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
@@ -196,7 +131,7 @@ workers = 4  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
-    steps_per_epoch=len(tg),
+    steps_per_epoch=len(tg) // BATCH_SIZE,
     validation_data=vg,
     validation_steps=10,
     epochs=epochs,
@@ -229,15 +164,15 @@ model.layers[-5].trainable = True
 model.layers[-6].trainable = True
 model.layers[-7].trainable = True
 
-model.compile(loss=f1_loss,
+model.compile(loss=data_generator.f1_loss,
               optimizer=Adam(lr=1e-4),
-              metrics=['accuracy', f1])
+              metrics=['accuracy', data_generator.f1])
 
 model.fit_generator(
     tg,
-    steps_per_epoch=len(tg),
+    steps_per_epoch=len(tg) // BATCH_SIZE,
     validation_data=vg,
-    validation_steps=8,
+    validation_steps=10,
     epochs=1,
     use_multiprocessing=use_multiprocessing,  # you have to train the model on GPU in order to this to be benefitial
     workers=workers,  # you have to train the model on GPU in order to this to be benefitial
@@ -249,7 +184,7 @@ model.fit_generator(
 # Perform validation on full validation dataset.
 # Choose appropriate prediction threshold maximalizing the validation F1-score.
 
-bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': f1})  # , 'f1_loss': f1_loss})
+bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': data_generator.f1})  # , 'f1_loss': f1_loss})
 # bestModel = model
 
 fullValGen = vg
@@ -301,7 +236,7 @@ else:
     T = T2
     bestModel = bestModel
 
-pathsTest, labelsTest = getTestDataset()
+pathsTest, labelsTest = data_generator.getTestDataset()
 
 testg = ProteinDataGenerator(pathsTest, labelsTest, BATCH_SIZE, SHAPE)
 submit = pd.read_csv(DIR + '/sample_submission.csv')
