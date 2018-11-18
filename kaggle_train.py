@@ -10,8 +10,10 @@ from keras.optimizers import Adam
 import numpy as np
 import pandas as pd
 from tensorflow import set_random_seed
+import tensorflow as tf
 from kaggle_data import ProteinDataGenerator
 from tqdm import tqdm
+from keras import backend as K
 from matplotlib import pyplot as plt
 from sklearn.metrics import f1_score as off1
 
@@ -26,8 +28,68 @@ VAL_RATIO = 0.1
 # Due to different cost of True Positive vs False Positive
 # This is the probability threshold to predict the class as 'yes'
 THRESHOLD = 0.5
-data_generator = ProteinDataGenerator()
 
+
+def getTrainDataset():
+    path_to_train = DIR + '/train/'
+    data = pd.read_csv(DIR + '/train.csv')
+    paths = []
+    labels = []
+
+    for name, lbl in zip(data['Id'], data['Target'].str.split(' ')):
+        y = np.zeros(28)
+        for key in lbl:
+            y[int(key)] = 1
+        paths.append(os.path.join(path_to_train, name))
+        labels.append(y)
+
+    return np.array(paths), np.array(labels)
+
+
+def getTestDataset():
+    path_to_test = DIR + '/test/'
+    data = pd.read_csv(DIR + '/sample_submission.csv')
+    paths = []
+    labels = []
+
+    for name in data['Id']:
+        y = np.ones(28)
+        paths.append(os.path.join(path_to_test, name))
+        labels.append(y)
+
+    return np.array(paths), np.array(labels)
+
+
+# credits: https://www.kaggle.com/guglielmocamporese/macro-f1-score-keras
+def f1(y_true, y_pred):
+    # y_pred = K.round(y_pred)
+    # y_pred = K.cast(K.greater(K.clip(y_pred, 0, 1), THRESHOLD), K.floatx())
+    tp = K.sum(K.cast(y_true * y_pred, 'float'), axis=0)
+    tn = K.sum(K.cast((1 - y_true) * (1 - y_pred), 'float'), axis=0)
+    fp = K.sum(K.cast((1 - y_true) * y_pred, 'float'), axis=0)
+    fn = K.sum(K.cast(y_true * (1 - y_pred), 'float'), axis=0)
+
+    p = tp / (tp + fp + K.epsilon())
+    r = tp / (tp + fn + K.epsilon())
+
+    f1 = 2 * p * r / (p + r + K.epsilon())
+    f1 = tf.where(tf.is_nan(f1), tf.zeros_like(f1), f1)
+    return K.mean(f1)
+
+
+def f1_loss(y_true, y_pred):
+    # y_pred = K.cast(K.greater(K.clip(y_pred, 0, 1), THRESHOLD), K.floatx())
+    tp = K.sum(K.cast(y_true * y_pred, 'float'), axis=0)
+    tn = K.sum(K.cast((1 - y_true) * (1 - y_pred), 'float'), axis=0)
+    fp = K.sum(K.cast((1 - y_true) * y_pred, 'float'), axis=0)
+    fn = K.sum(K.cast(y_true * (1 - y_pred), 'float'), axis=0)
+
+    p = tp / (tp + fp + K.epsilon())
+    r = tp / (tp + fn + K.epsilon())
+
+    f1 = 2 * p * r / (p + r + K.epsilon())
+    f1 = tf.where(tf.is_nan(f1), tf.zeros_like(f1), f1)
+    return 1 - K.mean(f1)
 
 # Creating model
 def create_model(input_shape):
@@ -93,11 +155,11 @@ model = create_model(SHAPE)
 model.compile(
     loss='binary_crossentropy',
     optimizer=Adam(1e-04),
-    metrics=['acc', data_generator.f1])
+    metrics=['acc', f1])
 
 model.summary()
 
-paths, labels = data_generator.getTrainDataset()
+paths, labels = getTrainDataset()
 
 
 
@@ -115,7 +177,7 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
@@ -164,9 +226,9 @@ model.layers[-5].trainable = True
 model.layers[-6].trainable = True
 model.layers[-7].trainable = True
 
-model.compile(loss=data_generator.f1_loss,
+model.compile(loss=f1_loss,
               optimizer=Adam(lr=1e-4),
-              metrics=['accuracy', data_generator.f1])
+              metrics=['accuracy', f1])
 
 model.fit_generator(
     tg,
@@ -184,7 +246,7 @@ model.fit_generator(
 # Perform validation on full validation dataset.
 # Choose appropriate prediction threshold maximalizing the validation F1-score.
 
-bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': data_generator.f1})  # , 'f1_loss': f1_loss})
+bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': f1})  # , 'f1_loss': f1_loss})
 # bestModel = model
 
 fullValGen = vg
@@ -236,7 +298,7 @@ else:
     T = T2
     bestModel = bestModel
 
-pathsTest, labelsTest = data_generator.getTestDataset()
+pathsTest, labelsTest = getTestDataset()
 
 testg = ProteinDataGenerator(pathsTest, labelsTest, BATCH_SIZE, SHAPE)
 submit = pd.read_csv(DIR + '/sample_submission.csv')
