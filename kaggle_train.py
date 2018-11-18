@@ -25,8 +25,11 @@ BATCH_SIZE = 32
 SEED = 666
 SHAPE = (512, 512, 4)
 DIR = '/data/d14122793/human_protein_atlas_image_classification'
-VAL_RATIO = 0.1  # 10 % as validation
-THRESHOLD = 0.5  # due to different cost of True Positive vs False Positive, this is the probability threshold to predict the class as 'yes'
+# 10 % as validation
+VAL_RATIO = 0.1
+# Due to different cost of True Positive vs False Positive
+# This is the probability threshold to predict the class as 'yes'
+THRESHOLD = 0.5
 
 set_random_seed(SEED)
 

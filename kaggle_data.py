@@ -9,15 +9,8 @@ import imgaug as ia
 from imgaug import augmenters as iaa
 import cv2
 
-BATCH_SIZE = 32
 SEED = 666
 SHAPE = (512, 512, 4)
-DIR = '/data/d14122793/human_protein_atlas'
-# 10 % as validation
-VAL_RATIO = 0.1
-# Due to different cost of True Positive vs False Positive
-# This is the probability threshold to predict the class as 'yes'
-THRESHOLD = 0.5
 ia.seed(SEED)
 
 
