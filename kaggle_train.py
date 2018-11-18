@@ -158,7 +158,7 @@ def create_model(input_shape):
 
 model = create_model(SHAPE)
 model.compile(
-    loss='categorical_crossentropy',
+    loss='binary_crossentropy',
     optimizer=Adam(1e-04),
     metrics=['acc', f1])
 
@@ -180,7 +180,7 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
