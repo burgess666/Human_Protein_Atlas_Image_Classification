@@ -177,7 +177,7 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
@@ -193,9 +193,9 @@ workers = 4  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
-    steps_per_epoch=len(tg) // BATCH_SIZE,
+    steps_per_epoch=100,
     validation_data=vg,
-    validation_steps=10,
+    validation_steps=8,
     epochs=epochs,
     use_multiprocessing=use_multiprocessing,
     workers=workers,
@@ -232,9 +232,9 @@ model.compile(loss=f1_loss,
 
 model.fit_generator(
     tg,
-    steps_per_epoch=len(tg) // BATCH_SIZE,
+    steps_per_epoch=100,
     validation_data=vg,
-    validation_steps=10,
+    validation_steps=8,
     epochs=1,
     use_multiprocessing=use_multiprocessing,  # you have to train the model on GPU in order to this to be benefitial
     workers=workers,  # you have to train the model on GPU in order to this to be benefitial
