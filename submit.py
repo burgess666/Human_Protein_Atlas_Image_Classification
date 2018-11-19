@@ -9,7 +9,7 @@ from keras.models import load_model
 data_gen = DataGenerator()
 submit = pd.read_csv('/data/d14122793/human_protein_atlas_image_classification/sample_submission.csv')
 checkpints_path = '/data/d14122793/human_protein_atlas_image_classification/checkpoints'
-model = load_model(os.path.join(checkpints_path, 'Training-.159-2.625.hdf5'))
+model = load_model(os.path.join(checkpints_path, 'Training-.188-2.546.hdf5'))
 
 predicted = []
 
@@ -23,4 +23,4 @@ for name in tqdm(submit['Id']):
 
 
 submit['Predicted'] = predicted
-submit.to_csv('submission008_inceptionResV2.csv', index=False)
+submit.to_csv('submission010_inceptionResV2.csv', index=False)
