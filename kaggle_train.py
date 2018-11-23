@@ -97,7 +97,7 @@ def create_model(input_shape):
 
     init = Input(input_shape)
     x = BatchNormalization(axis=-1)(init)
-    x = Conv2D(32, (3, 3))(x)  # , strides=(2,2))(x)
+    x = Conv2D(64, (3, 3))(x)  # , strides=(2,2))(x)
     x = ReLU()(x)
 
     x = BatchNormalization(axis=-1)(x)
@@ -176,8 +176,8 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=True, augment=True, shuffle=True)
-vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=True, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
+vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
 checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'),
