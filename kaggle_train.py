@@ -161,7 +161,7 @@ tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=True, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
-checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'),
+checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model_selu.hdf5'),
                              monitor='val_loss', verbose=1, save_best_only=True,
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
@@ -226,7 +226,7 @@ model.fit_generator(
 # Perform validation on full validation dataset.
 # Choose appropriate prediction threshold maximalizing the validation F1-score.
 
-bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': f1})
+bestModel = load_model(os.path.join(DIR, 'checkpoints/model_selu.hdf5'), custom_objects={'f1': f1})
 # bestModel = model
 
 fullValGen = vg
