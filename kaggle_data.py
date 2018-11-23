@@ -25,7 +25,7 @@ class ProteinDataGenerator(keras.utils.Sequence):
         self.use_cache = use_cache
         self.augment = augment
         if use_cache == True:
-            self.cache = np.zeros((paths.shape[0], shape[0], shape[1], shape[2]), dtype=np.float16)
+            self.cache = np.zeros((paths.shape[0], shape[0], shape[1], shape[2]), dtype=np.float32)
             self.is_cached = np.zeros((paths.shape[0]))
         self.on_epoch_end()
 

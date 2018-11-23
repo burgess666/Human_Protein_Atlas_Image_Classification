@@ -119,13 +119,10 @@ def create_model(input_shape):
 
     x = Concatenate()([gap1, gap2, gap3])
 
-    x = BatchNormalization(axis=-1)(x)
     x = Dense(256, activation='selu')(x)
     x = Dropout(drop_rate)(x)
-
-    x = BatchNormalization(axis=-1)(x)
     x = Dense(256, activation='selu')(x)
-    x = Dropout(0.3)(x)
+    x = Dropout(drop_rate)(x)
 
     x = Dense(28)(x)
     x = Activation('sigmoid')(x)
@@ -160,8 +157,8 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
-vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=True, augment=False, shuffle=True)
+vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=True, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
 checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'),
