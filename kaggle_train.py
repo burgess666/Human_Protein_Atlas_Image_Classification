@@ -188,7 +188,7 @@ reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, 
 epochs = 20
 
 use_multiprocessing = False  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
-workers = 1  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
+workers = 2  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
@@ -197,7 +197,7 @@ hist = model.fit_generator(
     validation_steps=8,
     epochs=epochs,
     use_multiprocessing=use_multiprocessing,
-    #workers=workers,
+    workers=workers,
     verbose=1,
     callbacks=[checkpoint])
 
@@ -236,7 +236,7 @@ model.fit_generator(
     validation_steps=8,
     epochs=1,
     use_multiprocessing=use_multiprocessing,  # you have to train the model on GPU in order to this to be benefitial
-    #workers=workers,  # you have to train the model on GPU in order to this to be benefitial
+    workers=workers,  # you have to train the model on GPU in order to this to be benefitial
     verbose=1,
     max_queue_size=4
 )
