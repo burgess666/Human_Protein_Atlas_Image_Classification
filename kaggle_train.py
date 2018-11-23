@@ -153,14 +153,13 @@ def create_model(input_shape):
 
 model = create_model(SHAPE)
 model.compile(
-    loss='categorical_crossentropy',
+    loss='binary_crossentropy',
     optimizer=Adam(1e-04),
     metrics=['acc', f1])
 
 model.summary()
 
 paths, labels = getTrainDataset()
-
 
 
 # divide to
@@ -177,15 +176,16 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
-checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'), monitor='val_loss', verbose=1, save_best_only=True,
+checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'),
+                             monitor='val_loss', verbose=1, save_best_only=True,
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 
-epochs = 25
+epochs = 20
 
 use_multiprocessing = False  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 workers = 1  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
@@ -231,7 +231,7 @@ model.compile(loss=f1_loss,
 
 model.fit_generator(
     tg,
-    steps_per_epoch=100,
+    steps_per_epoch=len(tg),
     validation_data=vg,
     validation_steps=8,
     epochs=1,
