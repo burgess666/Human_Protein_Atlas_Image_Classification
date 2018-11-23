@@ -153,7 +153,7 @@ def create_model(input_shape):
 
 model = create_model(SHAPE)
 model.compile(
-    loss=f1_loss,
+    loss='categorical_crossentropy',
     optimizer=Adam(1e-04),
     metrics=['acc', f1])
 
@@ -185,11 +185,10 @@ checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'), monito
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 
-#early_stopper = EarlyStopping(patience=5)
 epochs = 25
 
-use_multiprocessing = True  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
-workers = 4  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
+use_multiprocessing = False  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
+workers = 1  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
@@ -200,7 +199,7 @@ hist = model.fit_generator(
     use_multiprocessing=use_multiprocessing,
     workers=workers,
     verbose=1,
-    callbacks=[checkpoint]) #, early_stopper])
+    callbacks=[checkpoint])
 
 
 fig, ax = plt.subplots(1, 2, figsize=(15, 5))
@@ -246,7 +245,7 @@ model.fit_generator(
 # Perform validation on full validation dataset.
 # Choose appropriate prediction threshold maximalizing the validation F1-score.
 
-bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': f1})  # , 'f1_loss': f1_loss})
+bestModel = load_model(os.path.join(DIR, 'checkpoints/model.hdf5'), custom_objects={'f1': f1})
 # bestModel = model
 
 fullValGen = vg
