@@ -176,8 +176,8 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
-vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=True, augment=True, shuffle=True)
+vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=True, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
 checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'),
@@ -192,7 +192,7 @@ workers = 1  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
-    steps_per_epoch=100,
+    steps_per_epoch=len(tg),
     validation_data=vg,
     validation_steps=8,
     epochs=epochs,
