@@ -97,7 +97,7 @@ def create_model(input_shape):
 
     init = Input(input_shape)
     x = BatchNormalization(axis=-1)(init)
-    x = Conv2D(64, (3, 3))(x)  # , strides=(2,2))(x)
+    x = Conv2D(32, (3, 3))(x)  # , strides=(2,2))(x)
     x = ReLU()(x)
 
     x = BatchNormalization(axis=-1)(x)
