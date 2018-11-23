@@ -153,7 +153,7 @@ def create_model(input_shape):
 
 model = create_model(SHAPE)
 model.compile(
-    loss='binary_crossentropy',
+    loss=f1_loss,
     optimizer=Adam(1e-04),
     metrics=['acc', f1])
 
@@ -185,8 +185,8 @@ checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model.hdf5'), monito
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 
-early_stopper = EarlyStopping(patience=20)
-epochs = 1000
+#early_stopper = EarlyStopping(patience=5)
+epochs = 25
 
 use_multiprocessing = True  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 workers = 4  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
@@ -200,7 +200,7 @@ hist = model.fit_generator(
     use_multiprocessing=use_multiprocessing,
     workers=workers,
     verbose=1,
-    callbacks=[checkpoint, early_stopper])
+    callbacks=[checkpoint]) #, early_stopper])
 
 
 fig, ax = plt.subplots(1, 2, figsize=(15, 5))
