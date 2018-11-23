@@ -5,6 +5,7 @@ import os
 from keras.models import Sequential, load_model, Model
 from keras.layers import Activation, Dropout, Flatten, Dense, Input, Conv2D, MaxPooling2D, BatchNormalization, \
     Concatenate, ReLU, LeakyReLU, GlobalAveragePooling2D
+from keras.activations import selu
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau
 from keras.optimizers import Adam
 import numpy as np
@@ -91,42 +92,25 @@ def f1_loss(y_true, y_pred):
     f1 = tf.where(tf.is_nan(f1), tf.zeros_like(f1), f1)
     return 1 - K.mean(f1)
 
+
 # Creating model
 def create_model(input_shape):
-    drop_rate = 0.5
+    drop_rate = 0.3
 
     init = Input(input_shape)
-    x = BatchNormalization(axis=-1)(init)
-    x = Conv2D(32, (3, 3))(x)  # , strides=(2,2))(x)
-    x = ReLU()(x)
-
-    x = BatchNormalization(axis=-1)(x)
+    x = Conv2D(32, (3, 3), strides=(2, 2), activation='selu')(init)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp1 = Dropout(drop_rate)(x)
 
-    x = BatchNormalization(axis=-1)(ginp1)
-    x = Conv2D(64, (3, 3), strides=(2, 2))(x)
-    x = ReLU()(x)
-    x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = ReLU()(x)
-    x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = ReLU()(x)
-
-    x = BatchNormalization(axis=-1)(x)
+    x = Conv2D(64, (3, 3), strides=(2, 2), activation='selu')(ginp1)
+    x = Conv2D(64, (3, 3), activation='selu')(x)
+    x = Conv2D(64, (3, 3), activation='selu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp2 = Dropout(drop_rate)(x)
 
-    x = BatchNormalization(axis=-1)(ginp2)
-    x = Conv2D(128, (3, 3))(x)
-    x = ReLU()(x)
-    x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3))(x)
-    x = ReLU()(x)
-    x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3))(x)
-    x = ReLU()(x)
+    x = Conv2D(128, (3, 3), activation='selu')(ginp2)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
     ginp3 = Dropout(drop_rate)(x)
 
     gap1 = GlobalAveragePooling2D()(ginp1)
@@ -136,12 +120,12 @@ def create_model(input_shape):
     x = Concatenate()([gap1, gap2, gap3])
 
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(256, activation='relu')(x)
+    x = Dense(256, activation='selu')(x)
     x = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(256, activation='relu')(x)
-    x = Dropout(0.1)(x)
+    x = Dense(256, activation='selu')(x)
+    x = Dropout(0.3)(x)
 
     x = Dense(28)(x)
     x = Activation('sigmoid')(x)
@@ -323,4 +307,4 @@ for row in tqdm(range(submit.shape[0])):
     prediction.append(str_label.strip())
 
 submit['Predicted'] = np.array(prediction)
-submit.to_csv('kaggle_submit.csv', index=False)
+submit.to_csv('kaggle_submit_selu.csv', index=False)
