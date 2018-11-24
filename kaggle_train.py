@@ -315,4 +315,4 @@ for row in tqdm(range(submit.shape[0])):
     prediction.append(str_label.strip())
 
 submit['Predicted'] = np.array(prediction)
-submit.to_csv('kaggle_submit_selu.csv', index=False)
+submit.to_csv('kaggle_submit_selu_batch.csv', index=False)
