@@ -135,7 +135,7 @@ def create_model(input_shape):
 model = create_model(SHAPE)
 model.compile(
     loss='binary_crossentropy',
-    optimizer=Adam(1e-04),
+    optimizer=Adam(1e-03),
     metrics=['acc', f1])
 
 model.summary()
@@ -173,7 +173,7 @@ workers = 2  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 
 hist = model.fit_generator(
     tg,
-    steps_per_epoch=len(tg),
+    steps_per_epoch=len(tg) // BATCH_SIZE,
     validation_data=vg,
     validation_steps=8,
     epochs=epochs,
@@ -212,7 +212,7 @@ model.compile(loss=f1_loss,
 
 model.fit_generator(
     tg,
-    steps_per_epoch=len(tg),
+    steps_per_epoch=len(tg) // BATCH_SIZE,
     validation_data=vg,
     validation_steps=8,
     epochs=1,
