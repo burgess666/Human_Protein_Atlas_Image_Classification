@@ -98,18 +98,27 @@ def create_model(input_shape):
     drop_rate = 0.3
 
     init = Input(input_shape)
-    x = Conv2D(32, (3, 3), strides=(2, 2), activation='selu')(init)
+    x = BatchNormalization(axis=-1)(init)
+    x = Conv2D(32, (3, 3), strides=(2, 2), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp1 = Dropout(drop_rate)(x)
 
-    x = Conv2D(64, (3, 3), strides=(2, 2), activation='selu')(ginp1)
+    x = BatchNormalization(axis=-1)(ginp1)
+    x = Conv2D(64, (3, 3), strides=(2, 2), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
     x = Conv2D(64, (3, 3), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
     x = Conv2D(64, (3, 3), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp2 = Dropout(drop_rate)(x)
 
-    x = Conv2D(128, (3, 3), activation='selu')(ginp2)
+    x = BatchNormalization(axis=-1)(ginp2)
     x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = BatchNormalization(axis=-1)(x)
     x = Conv2D(128, (3, 3), activation='selu')(x)
     ginp3 = Dropout(drop_rate)(x)
 
@@ -217,7 +226,7 @@ model.fit_generator(
     steps_per_epoch=len(tg),
     validation_data=vg,
     validation_steps=8,
-    epochs=1,
+    epochs=5,
     use_multiprocessing=use_multiprocessing,  # you have to train the model on GPU in order to this to be benefitial
     workers=workers,  # you have to train the model on GPU in order to this to be benefitial
     verbose=1,
