@@ -99,27 +99,27 @@ def create_model(input_shape):
 
     init = Input(input_shape)
     x = BatchNormalization(axis=-1)(init)
-    x = Conv2D(32, (3, 3), strides=(2, 2), activation='selu')(x)
+    x = Conv2D(32, (3, 3), strides=(2, 2), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp1 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp1)
-    x = Conv2D(64, (3, 3), strides=(2, 2), activation='selu')(x)
+    x = Conv2D(64, (3, 3), strides=(2, 2), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3), activation='selu')(x)
+    x = Conv2D(64, (3, 3), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3), activation='selu')(x)
+    x = Conv2D(64, (3, 3), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp2 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp2)
-    x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = Conv2D(128, (3, 3), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = Conv2D(128, (3, 3), activation='relu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3), activation='selu')(x)
+    x = Conv2D(128, (3, 3), activation='relu')(x)
     ginp3 = Dropout(drop_rate)(x)
 
     gap1 = GlobalAveragePooling2D()(ginp1)
@@ -168,7 +168,7 @@ labelsVal = labels[lastTrainIndex:]
 print(paths.shape, labels.shape)
 print(pathsTrain.shape, labelsTrain.shape, pathsVal.shape, labelsVal.shape)
 
-tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=False, shuffle=True)
+tg = ProteinDataGenerator(pathsTrain, labelsTrain, BATCH_SIZE, SHAPE, use_cache=False, augment=True, shuffle=True)
 vg = ProteinDataGenerator(pathsVal, labelsVal, BATCH_SIZE, SHAPE, use_cache=False, shuffle=True)
 
 # https://keras.io/callbacks/#modelcheckpoint
