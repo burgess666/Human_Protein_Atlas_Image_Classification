@@ -129,10 +129,10 @@ def create_model(input_shape):
     x = Concatenate()([gap1, gap2, gap3])
 
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(512, activation='selu')(x)
+    x = Dense(256, activation='selu')(x)
     x = Dropout(drop_rate)(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(512, activation='selu')(x)
+    x = Dense(256, activation='selu')(x)
     x = Dropout(drop_rate)(x)
 
     x = Dense(28)(x)
