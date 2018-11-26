@@ -95,31 +95,31 @@ def f1_loss(y_true, y_pred):
 
 # Creating model
 def create_model(input_shape):
-    drop_rate = 0.3
+    drop_rate = 0.5
 
     init = Input(input_shape)
     x = BatchNormalization(axis=-1)(init)
-    x = Conv2D(32, (3, 3), strides=(2, 2), activation='relu')(x)
+    x = Conv2D(32, (3, 3), strides=(2, 2), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp1 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp1)
-    x = Conv2D(64, (3, 3), strides=(2, 2), activation='relu')(x)
+    x = Conv2D(64, (3, 3), strides=(2, 2), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3), activation='relu')(x)
+    x = Conv2D(64, (3, 3), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(64, (3, 3), activation='relu')(x)
+    x = Conv2D(64, (3, 3), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     ginp2 = Dropout(drop_rate)(x)
 
     x = BatchNormalization(axis=-1)(ginp2)
-    x = Conv2D(128, (3, 3), activation='relu')(x)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3), activation='relu')(x)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Conv2D(128, (3, 3), activation='relu')(x)
+    x = Conv2D(128, (3, 3), activation='selu')(x)
     ginp3 = Dropout(drop_rate)(x)
 
     gap1 = GlobalAveragePooling2D()(ginp1)
@@ -129,10 +129,10 @@ def create_model(input_shape):
     x = Concatenate()([gap1, gap2, gap3])
 
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(256, activation='selu')(x)
+    x = Dense(512, activation='selu')(x)
     x = Dropout(drop_rate)(x)
     x = BatchNormalization(axis=-1)(x)
-    x = Dense(256, activation='selu')(x)
+    x = Dense(512, activation='selu')(x)
     x = Dropout(drop_rate)(x)
 
     x = Dense(28)(x)
@@ -146,7 +146,7 @@ def create_model(input_shape):
 model = create_model(SHAPE)
 model.compile(
     loss='binary_crossentropy',
-    optimizer=Adam(1e-03),
+    optimizer=Adam(1e-04),
     metrics=['acc', f1])
 
 model.summary()
@@ -177,7 +177,7 @@ checkpoint = ModelCheckpoint(os.path.join(DIR, 'checkpoints/model_selu.hdf5'),
                              save_weights_only=False, mode='min', period=1)
 reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 
-epochs = 20
+epochs = 25
 
 use_multiprocessing = False  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
 workers = 2  # DO NOT COMBINE MULTIPROCESSING WITH CACHE!
@@ -315,4 +315,4 @@ for row in tqdm(range(submit.shape[0])):
     prediction.append(str_label.strip())
 
 submit['Predicted'] = np.array(prediction)
-submit.to_csv('kaggle_submit_selu_batch.csv', index=False)
+submit.to_csv('kaggle_submit_selu_batch_Augment.csv', index=False)
